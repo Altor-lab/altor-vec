@@ -162,14 +162,11 @@ export default function pluginAltorVec(
       }
     },
 
-    getThemePath() {
-      return path.resolve(__dirname, '../../theme');
-    },
+    // getThemePath() is optional, so we can omit it
 
     getClientModules() {
-      return [
-        path.resolve(__dirname, '../client/searchInit.js'),
-      ];
+      // Client modules for runtime initialization (optional)
+      return [];
     },
 
     configureWebpack() {

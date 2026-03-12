@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import { Document, Logger } from '../types';
 import { PluginError } from '../utils/PluginError';
 import { ErrorCode } from '../types';
@@ -65,8 +67,18 @@ export class HnswIndexBuilder implements IIndexBuilder {
         );
       }
 
-      // 1. Import altor-vec
-      const { WasmSearchEngine } = await import('altor-vec');
+      // 1. Import and initialize altor-vec WASM
+      const altorVec = await import('altor-vec');
+      
+      // In Node.js, we need to load the WASM file directly instead of using fetch
+      const wasmPath = path.join(
+        path.dirname(require.resolve('altor-vec')),
+        'altor_vec_wasm_bg.wasm'
+      );
+      const wasmBuffer = fs.readFileSync(wasmPath);
+      await altorVec.default(wasmBuffer); // Initialize WASM with buffer
+      
+      const { WasmSearchEngine } = altorVec;
 
       // 2. Flatten embeddings array
       this.logger.debug('Flattening embeddings');

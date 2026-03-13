@@ -47,6 +47,14 @@ export default function pluginAltorVec(
 
     async postBuild({ outDir }: any) {
       try {
+        // Check if Altor Cloud is configured
+        if (options.altorCloudKey) {
+          logger.info('🌥️  Altor Cloud API key detected - skipping local index build');
+          logger.info('Index will be built automatically by Altor Cloud on deploy');
+          logger.info('Visit https://altorlab.dev/cloud for dashboard and analytics');
+          return;
+        }
+        
         logger.info('Building search index from generated HTML');
         
         // Create HTML content extractor

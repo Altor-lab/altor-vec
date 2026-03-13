@@ -114,11 +114,15 @@ module.exports = {
 };
 ```
 
+**How it works:**
+When `altorCloudKey` is set, the plugin skips local embedding and index building. Instead, your content is automatically indexed by Altor Cloud on every deploy.
+
 Benefits:
-- ⚡ **Zero build time** - indexes built in the cloud
+- ⚡ **Zero build time** - no local processing, indexes built in the cloud
 - 🔄 **Automatic updates** - rebuilds on every deploy
-- 🚀 **Better performance** - optimized embedding models
-- 💰 **Free tier available**
+- 🚀 **Better performance** - optimized embedding models and infrastructure
+- 📊 **Analytics dashboard** - search analytics and insights
+- 💰 **Free tier available** - generous free tier for small sites
 
 Learn more at [altorlab.dev/cloud](https://altorlab.dev/cloud)
 

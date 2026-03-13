@@ -115,7 +115,8 @@ export default function pluginAltorVec(
           options.hnswM,
           options.hnswEfConstruction,
           options.hnswEfSearch,
-          logger
+          logger,
+          options.wasmPath
         );
         
         const { indexBytes, metadata, stats } = await indexBuilder.build(documents, embeddings);

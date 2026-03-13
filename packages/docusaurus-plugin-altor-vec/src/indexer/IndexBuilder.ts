@@ -38,7 +38,8 @@ export class HnswIndexBuilder implements IIndexBuilder {
     private readonly m: number,
     private readonly efConstruction: number,
     private readonly efSearch: number,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly wasmPath?: string
   ) {}
 
   async build(
@@ -71,11 +72,25 @@ export class HnswIndexBuilder implements IIndexBuilder {
       const altorVec = await import('altor-vec');
       
       // In Node.js, we need to load the WASM file directly instead of using fetch
-      const wasmPath = path.join(
-        path.dirname(require.resolve('altor-vec')),
-        'altor_vec_wasm_bg.wasm'
-      );
-      const wasmBuffer = fs.readFileSync(wasmPath);
+      // Use configurable path or fall back to require.resolve
+      let wasmFilePath: string;
+      if (this.wasmPath) {
+        wasmFilePath = this.wasmPath;
+      } else {
+        try {
+          wasmFilePath = path.join(
+            path.dirname(require.resolve('altor-vec')),
+            'altor_vec_wasm_bg.wasm'
+          );
+        } catch (error) {
+          throw new PluginError(
+            'Could not locate altor-vec WASM file. Please specify wasmPath in plugin options.',
+            ErrorCode.BUILD_FAILED,
+            'Add wasmPath option to your plugin configuration'
+          );
+        }
+      }
+      const wasmBuffer = fs.readFileSync(wasmFilePath);
       await altorVec.default(wasmBuffer); // Initialize WASM with buffer
       
       const { WasmSearchEngine } = altorVec;

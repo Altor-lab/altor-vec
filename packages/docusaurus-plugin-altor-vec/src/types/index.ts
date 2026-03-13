@@ -20,6 +20,9 @@ export interface PluginOptions {
   // Altor Cloud configuration
   altorCloudKey?: string;
   
+  // WASM configuration
+  wasmPath?: string;
+  
   // Index configuration
   indexPath?: string;
   indexOutputPath?: string;
@@ -116,7 +119,7 @@ export interface Document {
 /**
  * Default configuration values.
  */
-export const DEFAULT_OPTIONS: Required<Omit<PluginOptions, 'apiKey' | 'apiKeyEnvVar' | 'altorCloudKey' | 'customEmbeddingProvider' | 'customContentExtractor' | 'logger'>> = {
+export const DEFAULT_OPTIONS: Required<Omit<PluginOptions, 'apiKey' | 'apiKeyEnvVar' | 'altorCloudKey' | 'wasmPath' | 'customEmbeddingProvider' | 'customContentExtractor' | 'logger'>> = {
   embeddingProvider: 'transformers',
   embeddingModel: 'Xenova/all-MiniLM-L6-v2',
   embeddingDimensions: 384,

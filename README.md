@@ -175,6 +175,36 @@ wasm/
 └── src/lib.rs          # WasmSearchEngine (wasm-bindgen wrapper)
 ```
 
+## Packages
+
+This repository contains:
+
+- **[altor-vec](.)** - Core WASM vector search engine (Rust)
+- **[docusaurus-plugin-altor-vec](packages/docusaurus-plugin-altor-vec)** - Docusaurus plugin for semantic search (TypeScript)
+
+### Docusaurus Plugin
+
+Add client-side semantic search to your Docusaurus site:
+
+```bash
+npm install docusaurus-plugin-altor-vec
+```
+
+```javascript
+// docusaurus.config.js
+module.exports = {
+  plugins: ['docusaurus-plugin-altor-vec'],
+};
+```
+
+**Features:**
+- 🚀 Zero configuration required
+- ⚡ Runs entirely client-side
+- 🎯 Semantic search with Transformers.js or OpenAI
+- 📦 Automatic index building during build
+
+[Full Documentation →](packages/docusaurus-plugin-altor-vec)
+
 ## Build from source
 
 ```bash

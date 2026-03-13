@@ -162,33 +162,54 @@ export class OpenAIEmbeddingProvider implements IEmbeddingProvider {
   }
 
   async generateBatch(texts: string[]): Promise<Float32Array[]> {
-    this.logger.info(`Generating embeddings for ${texts.length} documents via OpenAI (concurrency: ${this.concurrency})`);
+    this.logger.info(`Generating embeddings for ${texts.length} documents via OpenAI (batch mode)`);
     
-    const limit = pLimit(this.concurrency);
-    let completed = 0;
+    // OpenAI supports up to 2048 texts per batch request
+    const BATCH_SIZE = 2048;
+    const embeddings: Float32Array[] = [];
+    
+    // Process in batches of 2048
+    for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+      const batch = texts.slice(i, Math.min(i + BATCH_SIZE, texts.length));
+      this.logger.debug(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}: ${batch.length} texts`);
+      
+      try {
+        const response = await fetch(this.baseUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+          body: JSON.stringify({
+            model: this.model,
+            input: batch, // Send array of texts in single request
+          }),
+        });
 
-    const tasks = texts.map((text, index) =>
-      limit(async () => {
-        const embedding = await this.generateEmbedding(text);
-        completed++;
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || 'API request failed');
+        }
+
+        const data = await response.json();
         
-        if (completed % 10 === 0) {
-          this.logger.debug(`Progress: ${completed}/${texts.length} embeddings generated`);
+        // Extract embeddings in order
+        for (const item of data.data) {
+          embeddings.push(new Float32Array(item.embedding));
         }
         
-        // Rate limiting: wait 100ms between requests
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        
-        return { index, embedding };
-      })
-    );
-
-    const results = await Promise.all(tasks);
+        this.logger.debug(`Progress: ${embeddings.length}/${texts.length} embeddings generated`);
+      } catch (error) {
+        this.logger.error('OpenAI batch API request failed', error as Error);
+        throw new PluginError(
+          'Failed to generate batch embeddings via OpenAI',
+          ErrorCode.API_REQUEST_FAILED,
+          'Check your API key and rate limits'
+        );
+      }
+    }
     
-    // Sort by original index to maintain order
-    results.sort((a, b) => a.index - b.index);
-    
-    return results.map(r => r.embedding);
+    return embeddings;
   }
 
   getDimensions(): number {

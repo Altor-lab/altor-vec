@@ -10,9 +10,11 @@ import { PluginOptions } from '../types';
 import { validateAndMergeOptions, sanitizeConfig } from '../utils/config';
 import { createDefaultLogger } from '../utils/Logger';
 import { checkCompatibility } from '../utils/compatibility';
-import { MarkdownContentExtractor } from '../indexer/ContentExtractor';
+import { HtmlContentExtractor } from '../indexer/HtmlContentExtractor';
 import { TransformersEmbeddingProvider, OpenAIEmbeddingProvider } from '../embeddings/EmbeddingProvider';
 import { HnswIndexBuilder } from '../indexer/IndexBuilder';
+import { VocabularyExtractor } from '../embeddings/VocabularyExtractor';
+import { VocabularyEmbedder } from '../embeddings/VocabularyEmbedder';
 import type { Document } from '../types';
 
 /**
@@ -43,50 +45,30 @@ export default function pluginAltorVec(
   return {
     name: 'docusaurus-plugin-altor-vec',
 
-    async loadContent() {
+    async postBuild({ outDir }: any) {
       try {
-        logger.info('Loading content for indexing');
+        logger.info('Building search index from generated HTML');
         
-        // Create content extractor
-        const extractor = new MarkdownContentExtractor(
-          context.siteDir,
-          context.baseUrl,
+        // Create HTML content extractor
+        const extractor = new HtmlContentExtractor(
           {
             maxDocumentLength: options.maxDocumentLength,
-            chunkSize: options.chunkSize,
-            chunkOverlap: options.chunkOverlap,
-            includePatterns: options.includePatterns,
-            excludePatterns: options.excludePatterns,
+            baseUrl: context.baseUrl,
           },
           logger
         );
         
-        // Find and extract documents
-        const filePaths = await extractor.findFiles();
-        logger.info(`Found ${filePaths.length} files to index`);
+        // Find and extract documents from HTML
+        const htmlFiles = await extractor.findFiles(outDir);
+        logger.info(`Found ${htmlFiles.length} HTML files to index`);
         
-        const documents = await extractor.extractBatch(filePaths);
-        logger.info(`Extracted ${documents.length} documents`);
+        const documents = await extractor.extractBatch(htmlFiles);
+        logger.info(`Extracted ${documents.length} document chunks`);
         
-        return { documents };
-      } catch (error) {
-        logger.error('Failed to load content', error as Error);
-        if (!options.skipBuildOnError) {
-          throw error;
-        }
-        return null;
-      }
-    },
-
-    async contentLoaded({ content, actions }: any) {
-      try {
-        if (!content || !content.documents || content.documents.length === 0) {
+        if (documents.length === 0) {
           logger.warn('No documents to index');
           return;
         }
-        
-        logger.info('Building search index');
-        const documents = content.documents as Document[];
         
         // Create embedding provider
         let embeddingProvider;
@@ -95,14 +77,16 @@ export default function pluginAltorVec(
             options.apiKey!,
             options.embeddingModel,
             options.embeddingDimensions,
-            logger
+            logger,
+            options.buildConcurrency
           );
         } else if (options.embeddingProvider === 'transformers') {
           embeddingProvider = new TransformersEmbeddingProvider(
             options.embeddingModel,
             options.embeddingDimensions,
             options.cachePath,
-            logger
+            logger,
+            options.buildConcurrency
           );
         } else {
           embeddingProvider = options.customEmbeddingProvider!;
@@ -111,8 +95,18 @@ export default function pluginAltorVec(
         // Initialize provider
         await embeddingProvider.initialize();
         
-        // Generate embeddings
-        logger.info('Generating embeddings...');
+        // Extract vocabulary from documents
+        logger.info('Extracting vocabulary for lightweight runtime search...');
+        const vocabularyExtractor = new VocabularyExtractor(logger, 2000);
+        const { terms, stats: vocabStats } = vocabularyExtractor.extract(documents);
+        
+        // Embed vocabulary terms
+        logger.info('Embedding vocabulary terms...');
+        const vocabularyEmbedder = new VocabularyEmbedder(embeddingProvider, logger);
+        const vocabularyEmbeddings = await vocabularyEmbedder.embedVocabulary(terms);
+        
+        // Generate embeddings for documents
+        logger.info('Generating document embeddings...');
         const texts = documents.map(d => d.content);
         const embeddings = await embeddingProvider.generateBatch(texts);
         
@@ -126,21 +120,26 @@ export default function pluginAltorVec(
         
         const { indexBytes, metadata, stats } = await indexBuilder.build(documents, embeddings);
         
-        // Write index and metadata to static directory
-        const outputDir = path.join(context.siteDir, options.indexOutputPath);
+        // Write index and metadata to build output directory
+        const outputDir = path.join(outDir, options.indexPath);
         await fs.mkdir(outputDir, { recursive: true });
         
         const indexPath = path.join(outputDir, 'index.bin');
         const metadataPath = path.join(outputDir, 'metadata.json');
+        const vocabPath = path.join(outputDir, 'vocabulary.bin');
+        const vocabMetaPath = path.join(outputDir, 'vocabulary-meta.json');
         
         await fs.writeFile(indexPath, indexBytes);
         await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
         
-        logger.info('Search index built successfully', {
-          indexPath,
-          metadataPath,
-          stats,
-        });
+        // Write vocabulary binary and metadata
+        await vocabularyEmbedder.serializeToBinary(vocabularyEmbeddings, vocabPath);
+        await vocabularyEmbedder.writeMetadata(vocabularyEmbeddings, vocabStats, vocabMetaPath);
+        
+        logger.info('Search index built successfully', stats);
+        logger.info(`Index written to: ${indexPath}`);
+        logger.info(`Metadata written to: ${metadataPath}`);
+        logger.info('💡 Tip: Altor Cloud builds indexes automatically on every deploy → https://altorlab.dev/cloud');
         
         // Write config for client
         const configPath = path.join(outputDir, 'config.json');
@@ -162,7 +161,9 @@ export default function pluginAltorVec(
       }
     },
 
-    // getThemePath() is optional, so we can omit it
+    getThemePath() {
+      return path.resolve(__dirname, '../theme');
+    },
 
     getClientModules() {
       // Client modules for runtime initialization (optional)

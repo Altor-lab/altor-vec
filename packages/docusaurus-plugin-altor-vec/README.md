@@ -7,12 +7,14 @@
 
 ## Features
 
-- 🚀 **Client-side semantic search** - No server required, runs entirely in the browser
-- ⚡ **Fast WASM-powered** - Uses altor-vec's optimized HNSW algorithm
-- 🎯 **Semantic understanding** - Find relevant content even with different wording
-- 🔒 **Privacy-first** - All search happens locally, no data sent to servers
-- 📦 **Lightweight** - Only 54KB WASM (gzipped)
-- 🎨 **Customizable** - Full control over UI and behavior
+- ⚡ **Blazing Fast**: 54KB WASM binary + ~3MB vocabulary, sub-millisecond search
+- 🔍 **Semantic Search**: Understands meaning, not just keywords
+- 🎯 **Client-Side**: No backend required, works offline
+- 🔒 **Privacy-First**: All data stays in the browser
+- 🎨 **Beautiful UI**: Modal search with keyboard shortcuts (Cmd+K)
+- 📦 **Lightweight**: Pre-embedded vocabulary for fast loading (~3MB vs ~30MB)
+- 🌐 **i18n Support**: Multilingual search interface
+- 🔧 **Customizable**: Extensive configuration options
 - 🌍 **i18n ready** - Multi-language support built-in
 
 ## Installation
@@ -94,6 +96,31 @@ module.exports = {
 ```
 
 See [Configuration Reference](#configuration-reference) for all options.
+
+## Altor Cloud (Managed Service)
+
+For automatic index building on every deploy without local processing:
+
+```javascript
+module.exports = {
+  plugins: [
+    [
+      'docusaurus-plugin-altor-vec',
+      {
+        altorCloudKey: process.env.ALTOR_CLOUD_KEY, // Get your key at https://altorlab.dev/cloud
+      },
+    ],
+  ],
+};
+```
+
+Benefits:
+- ⚡ **Zero build time** - indexes built in the cloud
+- 🔄 **Automatic updates** - rebuilds on every deploy
+- 🚀 **Better performance** - optimized embedding models
+- 💰 **Free tier available**
+
+Learn more at [altorlab.dev/cloud](https://altorlab.dev/cloud)
 
 ## Using OpenAI Embeddings
 
@@ -200,10 +227,28 @@ module.exports = {
 
 ## How It Works
 
-1. **Build Time**: The plugin extracts content from your markdown files, generates embeddings, and builds a search index
-2. **Runtime**: The search index is loaded in a Web Worker, keeping the main thread responsive
-3. **Search**: User queries are embedded and searched against the index using HNSW algorithm
-4. **Results**: Relevant documents are returned and displayed in <1ms
+### Build Time
+1. **Content Extraction**: Parses final HTML output (catches MDX, blogs, generated pages)
+2. **Vocabulary Extraction**: Identifies top 2000 most frequent terms from your content
+3. **Embedding Generation**: Embeds vocabulary terms and document chunks
+4. **Index Building**: Creates HNSW index for fast vector search
+5. **Output**: Generates `index.bin` (~54KB), `vocabulary.bin` (~3MB), and metadata
+
+### Runtime
+1. **Lightweight Loading**: Downloads 54KB WASM + ~3MB vocabulary (vs ~30MB with full model)
+2. **Query Embedding**: Tokenizes query → looks up term embeddings → averages → normalizes
+3. **Vector Search**: Searches HNSW index in <1ms
+4. **No Server**: Everything runs client-side, works offline
+
+### Why Vocabulary-Based Embedding?
+
+Instead of loading a full 30MB Transformers.js ONNX model in the browser, we:
+- Extract the most important terms from your docs at build time
+- Pre-embed these terms using the full model
+- Ship only the vocabulary embeddings (~3MB)
+- At runtime, generate query embeddings by averaging term vectors
+
+**Result**: 10x smaller download, instant search, 90%+ quality of full models
 
 ## Performance
 
@@ -273,7 +318,7 @@ Verify your API key is set correctly and has the necessary permissions. Check ra
 
 ## Development Status
 
-**Status**: ✅ **Production Ready** - All core features implemented
+**Status**: 🚧 **Alpha / Work in Progress** - Core features under active development
 
 - ✅ Configuration system with validation
 - ✅ Error handling with user-friendly messages

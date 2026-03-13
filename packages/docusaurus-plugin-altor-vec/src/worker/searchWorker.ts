@@ -4,10 +4,11 @@
  */
 
 import type { DocumentMetadata } from '../indexer/IndexBuilder';
+import { VocabularyLookup } from './VocabularyLookup';
 
 let engine: any = null;
 let metadata: DocumentMetadata[] = [];
-let embedPipeline: any = null;
+let vocabularyLookup: VocabularyLookup | null = null;
 
 interface WorkerConfig {
   indexPath: string;
@@ -78,9 +79,20 @@ async function initialize(workerConfig: WorkerConfig) {
 
     metadata = await metadataResponse.json();
 
-    // 4. Initialize embedding model (using configured model)
-    const { pipeline } = await import('@huggingface/transformers');
-    embedPipeline = await pipeline('feature-extraction', config.embeddingModel);
+    // 4. Load vocabulary for lightweight embedding
+    const vocabUrl = `/${config.indexPath}/vocabulary.bin`;
+    const vocabResponse = await fetch(vocabUrl);
+
+    if (!vocabResponse.ok) {
+      throw new Error(`Failed to load vocabulary from ${vocabUrl}: ${vocabResponse.status}`);
+    }
+
+    const vocabBuffer = await vocabResponse.arrayBuffer();
+    vocabularyLookup = new VocabularyLookup();
+    await vocabularyLookup.loadFromBinary(vocabBuffer);
+
+    const vocabStats = vocabularyLookup.getStats();
+    console.log(`[SearchWorker] Vocabulary loaded: ${vocabStats.vocabularySize} terms, ${vocabStats.dimensions}D`);
 
     self.postMessage({ type: 'ready' });
   } catch (error) {
@@ -92,19 +104,15 @@ async function initialize(workerConfig: WorkerConfig) {
 }
 
 async function search(query: string, topK: number) {
-  if (!engine || !embedPipeline) {
+  if (!engine || !vocabularyLookup) {
     throw new Error('Search engine not initialized');
   }
 
   const startTime = performance.now();
 
-  // 1. Generate query embedding
+  // 1. Generate query embedding using vocabulary lookup
   const embedStart = performance.now();
-  const output = await embedPipeline(query, {
-    pooling: 'mean',
-    normalize: true,
-  });
-  const queryEmbedding = new Float32Array(output.data);
+  const queryEmbedding = vocabularyLookup.generateEmbedding(query);
   const embedTime = performance.now() - embedStart;
 
   // 2. Search index

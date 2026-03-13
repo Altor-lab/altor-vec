@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+import pLimit from 'p-limit';
 import { IEmbeddingProvider, Logger } from '../types';
 import { PluginError } from '../utils/PluginError';
 import { ErrorCode } from '../types';
@@ -17,7 +18,8 @@ export class TransformersEmbeddingProvider implements IEmbeddingProvider {
     private readonly modelName: string,
     private readonly dimensions: number,
     private readonly cachePath: string,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly concurrency: number = 4
   ) {}
 
   async initialize(): Promise<void> {
@@ -68,18 +70,30 @@ export class TransformersEmbeddingProvider implements IEmbeddingProvider {
   }
 
   async generateBatch(texts: string[]): Promise<Float32Array[]> {
-    this.logger.info(`Generating embeddings for ${texts.length} documents`);
-    const embeddings: Float32Array[] = [];
+    this.logger.info(`Generating embeddings for ${texts.length} documents (concurrency: ${this.concurrency})`);
+    
+    const limit = pLimit(this.concurrency);
+    let completed = 0;
 
-    for (let i = 0; i < texts.length; i++) {
-      embeddings.push(await this.generateEmbedding(texts[i]));
+    const tasks = texts.map((text, index) =>
+      limit(async () => {
+        const embedding = await this.generateEmbedding(text);
+        completed++;
+        
+        if (completed % 10 === 0) {
+          this.logger.debug(`Progress: ${completed}/${texts.length} embeddings generated`);
+        }
+        
+        return { index, embedding };
+      })
+    );
 
-      if ((i + 1) % 10 === 0) {
-        this.logger.debug(`Progress: ${i + 1}/${texts.length} embeddings generated`);
-      }
-    }
-
-    return embeddings;
+    const results = await Promise.all(tasks);
+    
+    // Sort by original index to maintain order
+    results.sort((a, b) => a.index - b.index);
+    
+    return results.map(r => r.embedding);
   }
 
   getDimensions(): number {
@@ -97,7 +111,8 @@ export class OpenAIEmbeddingProvider implements IEmbeddingProvider {
     private readonly apiKey: string,
     private readonly model: string,
     private readonly dimensions: number,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly concurrency: number = 4
   ) {}
 
   async initialize(): Promise<void> {
@@ -147,22 +162,33 @@ export class OpenAIEmbeddingProvider implements IEmbeddingProvider {
   }
 
   async generateBatch(texts: string[]): Promise<Float32Array[]> {
-    this.logger.info(`Generating embeddings for ${texts.length} documents via OpenAI`);
-    const embeddings: Float32Array[] = [];
+    this.logger.info(`Generating embeddings for ${texts.length} documents via OpenAI (concurrency: ${this.concurrency})`);
+    
+    const limit = pLimit(this.concurrency);
+    let completed = 0;
 
-    // OpenAI allows batch requests, but we'll do sequential for rate limiting
-    for (let i = 0; i < texts.length; i++) {
-      embeddings.push(await this.generateEmbedding(texts[i]));
+    const tasks = texts.map((text, index) =>
+      limit(async () => {
+        const embedding = await this.generateEmbedding(text);
+        completed++;
+        
+        if (completed % 10 === 0) {
+          this.logger.debug(`Progress: ${completed}/${texts.length} embeddings generated`);
+        }
+        
+        // Rate limiting: wait 100ms between requests
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        
+        return { index, embedding };
+      })
+    );
 
-      if ((i + 1) % 10 === 0) {
-        this.logger.debug(`Progress: ${i + 1}/${texts.length} embeddings generated`);
-      }
-
-      // Rate limiting: wait 100ms between requests
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    return embeddings;
+    const results = await Promise.all(tasks);
+    
+    // Sort by original index to maintain order
+    results.sort((a, b) => a.index - b.index);
+    
+    return results.map(r => r.embedding);
   }
 
   getDimensions(): number {

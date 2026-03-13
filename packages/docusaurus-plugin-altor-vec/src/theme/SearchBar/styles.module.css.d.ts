@@ -1,0 +1,31 @@
+declare const styles: {
+  readonly searchButton: string;
+  readonly searchIcon: string;
+  readonly searchButtonText: string;
+  readonly searchButtonKbd: string;
+  readonly modalOverlay: string;
+  readonly modalContainer: string;
+  readonly searchInputWrapper: string;
+  readonly searchInput: string;
+  readonly searchInputIcon: string;
+  readonly loadingSpinner: string;
+  readonly resultsContainer: string;
+  readonly searchResult: string;
+  readonly focused: string;
+  readonly resultTitle: string;
+  readonly resultPreview: string;
+  readonly resultScore: string;
+  readonly noResults: string;
+  readonly noResultsIcon: string;
+  readonly noResultsText: string;
+  readonly errorMessage: string;
+  readonly modalFooter: string;
+  readonly keyboardHints: string;
+  readonly keyboardHint: string;
+  readonly keyboardHintKey: string;
+  readonly poweredBy: string;
+  readonly poweredByLink: string;
+  readonly timingDisplay: string;
+};
+
+export default styles;

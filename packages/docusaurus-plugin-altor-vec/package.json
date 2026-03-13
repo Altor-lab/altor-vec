@@ -10,7 +10,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy-assets",
+    "copy-assets": "cp src/theme/SearchBar/styles.module.css dist/theme/SearchBar/ 2>/dev/null || true",
     "watch": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "jest",
@@ -53,10 +54,12 @@
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "dependencies": {
-    "altor-vec": "^0.1.3",
     "@huggingface/transformers": "^3.8.1",
-    "gray-matter": "^4.0.3",
+    "altor-vec": "^0.1.3",
+    "cheerio": "^1.2.0",
     "glob": "^10.3.0",
+    "gray-matter": "^4.0.3",
+    "p-limit": "^7.3.0",
     "semver": "^7.5.4"
   },
   "devDependencies": {

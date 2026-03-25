@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunktest_site=globalThis.webpackChunktest_site||[]).push([[168],{3239(e){e.exports=JSON.parse('{"name":"docusaurus-theme-search-altor","id":"default"}')}}]);

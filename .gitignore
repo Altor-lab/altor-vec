@@ -1,0 +1,13 @@
+/target
+test_index.bin
+wasm/pkg/
+wasm/pkg-node/
+data/
+.sisyphus/
+test-site/
+reddit-posts.md
+docusaurus-theme-search-altor/node_modules/
+docusaurus-theme-search-altor/lib/
+docusaurus-theme-search-altor/*.tgz
+embed-api/node_modules/
+embed-api/*.log

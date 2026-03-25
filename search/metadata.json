@@ -1,0 +1,424 @@
+[
+  {
+    "id": 0,
+    "title": "Page Not Found",
+    "url": "/404",
+    "headings": [],
+    "snippet": "Page Not FoundWe could not find what you were looking for.Please contact the owner of the site that linked you to the original URL and let them know their link ",
+    "type": "page"
+  },
+  {
+    "id": 1,
+    "title": "API Reference — Create and Populate an Engine​",
+    "url": "/docs/api-reference#create-and-populate-an-engine",
+    "headings": [
+      "Create and Populate an Engine​"
+    ],
+    "snippet": "On this pageAPI Reference The WasmSearchEngine class is the primary interface exposed by Altor Vec. It wraps the underlying WebAssembly module and presents a sm",
+    "type": "docs"
+  },
+  {
+    "id": 2,
+    "title": "API Reference — Query and Maintenance Methods​",
+    "url": "/docs/api-reference#query-and-maintenance-methods",
+    "headings": [
+      "Query and Maintenance Methods​"
+    ],
+    "snippet": "Query and Maintenance Methods​ Use search(queryVector, options) to retrieve the nearest neighbors. Common options include limit and efSearch. A higher efSearch ",
+    "type": "docs"
+  },
+  {
+    "id": 3,
+    "title": "Configuration — HNSW Parameters​",
+    "url": "/docs/configuration#hnsw-parameters",
+    "headings": [
+      "HNSW Parameters​"
+    ],
+    "snippet": "On this pageConfiguration Altor Vec exposes a focused set of configuration options because approximate nearest-neighbor search quality depends heavily on the st",
+    "type": "docs"
+  },
+  {
+    "id": 4,
+    "title": "Configuration — Choosing Defaults​",
+    "url": "/docs/configuration#choosing-defaults",
+    "headings": [
+      "Choosing Defaults​"
+    ],
+    "snippet": "Choosing Defaults​ For interactive search, start with moderate settings and measure. A common pattern is m = 16, ef_construction = 100–200, and ef_search = 40–1",
+    "type": "docs"
+  },
+  {
+    "id": 5,
+    "title": "Installation Guide — Install with npm​",
+    "url": "/docs/installation#install-with-npm",
+    "headings": [
+      "Install with npm​"
+    ],
+    "snippet": "On this pageInstallation Guide Altor Vec can be installed in a few different ways depending on how you plan to use it. The most common path is the npm package, ",
+    "type": "docs"
+  },
+  {
+    "id": 6,
+    "title": "Installation Guide — Load from a CDN​",
+    "url": "/docs/installation#load-from-a-cdn",
+    "headings": [
+      "Load from a CDN​"
+    ],
+    "snippet": "Load from a CDN​ For quick demos, a CDN build can be easier than setting up a full package manager workflow. This approach is useful for testing search relevanc",
+    "type": "docs"
+  },
+  {
+    "id": 7,
+    "title": "Installation Guide — Build from Source​",
+    "url": "/docs/installation#build-from-source",
+    "headings": [
+      "Build from Source​"
+    ],
+    "snippet": "Build from Source​ Building from source is helpful when you need to validate the Rust and Wasm pipeline, inspect generated binaries, or test local changes befor",
+    "type": "docs"
+  },
+  {
+    "id": 8,
+    "title": "Getting Started with Altor Vec — Core Concepts​",
+    "url": "/docs/intro#core-concepts",
+    "headings": [
+      "Core Concepts​"
+    ],
+    "snippet": "On this pageGetting Started with Altor Vec Altor Vec is a vector search library built for teams that want fast semantic retrieval without depending on a hosted ",
+    "type": "docs"
+  },
+  {
+    "id": 9,
+    "title": "Getting Started with Altor Vec — Typical Workflow​",
+    "url": "/docs/intro#typical-workflow",
+    "headings": [
+      "Typical Workflow​"
+    ],
+    "snippet": "Typical Workflow​ Most projects follow the same flow. First, generate embeddings for every document chunk using the model of your choice. Second, initialize Alt",
+    "type": "docs"
+  },
+  {
+    "id": 10,
+    "title": "Migrating from Algolia or Pinecone — Moving from Algolia​",
+    "url": "/docs/migration#moving-from-algolia",
+    "headings": [
+      "Moving from Algolia​"
+    ],
+    "snippet": "On this pageMigrating from Algolia or Pinecone Migrating to Altor Vec usually means more than swapping one SDK for another. Algolia and Pinecone solve different",
+    "type": "docs"
+  },
+  {
+    "id": 11,
+    "title": "Migrating from Algolia or Pinecone — Moving from Pinecone​",
+    "url": "/docs/migration#moving-from-pinecone",
+    "headings": [
+      "Moving from Pinecone​"
+    ],
+    "snippet": "Moving from Pinecone​ Pinecone users are usually already comfortable with embeddings and vector-first retrieval. The migration work is therefore more operationa",
+    "type": "docs"
+  },
+  {
+    "id": 12,
+    "title": "Performance Benchmarks — Latency and Recall​",
+    "url": "/docs/performance#latency-and-recall",
+    "headings": [
+      "Latency and Recall​"
+    ],
+    "snippet": "On this pagePerformance Benchmarks Performance measurements for vector search are only useful when they reflect realistic workloads. Altor Vec is designed for l",
+    "type": "docs"
+  },
+  {
+    "id": 13,
+    "title": "Performance Benchmarks — Memory and System Comparisons​",
+    "url": "/docs/performance#memory-and-system-comparisons",
+    "headings": [
+      "Memory and System Comparisons​"
+    ],
+    "snippet": "Memory and System Comparisons​ Memory usage grows with vector count, dimension size, metadata payload, and m. That means two indexes with the same number of rec",
+    "type": "docs"
+  },
+  {
+    "id": 14,
+    "title": "Quick Start Tutorial — Build an Index​",
+    "url": "/docs/quick-start#build-an-index",
+    "headings": [
+      "Build an Index​"
+    ],
+    "snippet": "On this pageQuick Start Tutorial This tutorial walks through a minimal but realistic Altor Vec workflow. The goal is not just to show a single API call, but to ",
+    "type": "docs"
+  },
+  {
+    "id": 15,
+    "title": "Quick Start Tutorial — Run a Search Query​",
+    "url": "/docs/quick-start#run-a-search-query",
+    "headings": [
+      "Run a Search Query​"
+    ],
+    "snippet": "Run a Search Query​ Once the index exists, convert the user query into a vector and request the nearest matches. Keep the initial limit small, then re-rank or e",
+    "type": "docs"
+  },
+  {
+    "id": 16,
+    "title": "Troubleshooting — Common Errors​",
+    "url": "/docs/troubleshooting#common-errors",
+    "headings": [
+      "Common Errors​"
+    ],
+    "snippet": "On this pageTroubleshooting Most Altor Vec issues fall into a small number of categories: the WebAssembly asset does not load, vectors have the wrong dimension,",
+    "type": "docs"
+  },
+  {
+    "id": 17,
+    "title": "Troubleshooting — Debugging Workflow​",
+    "url": "/docs/troubleshooting#debugging-workflow",
+    "headings": [
+      "Debugging Workflow​"
+    ],
+    "snippet": "Debugging Workflow​ Use a small fixture index first. Insert five to ten records with known semantic relationships, then run a query you can evaluate by hand. If",
+    "type": "docs"
+  },
+  {
+    "id": 18,
+    "title": "Congratulations! — What's next?​",
+    "url": "/docs/tutorial-basics/congratulations#what-s-next",
+    "headings": [
+      "What's next?​"
+    ],
+    "snippet": "On this pageCongratulations! You have just learned the basics of Docusaurus and made some changes to the initial template. Docusaurus has much more to offer! Ha",
+    "type": "docs"
+  },
+  {
+    "id": 19,
+    "title": "Create a Blog Post — Create your first Post​",
+    "url": "/docs/tutorial-basics/create-a-blog-post#create-your-first-post",
+    "headings": [
+      "Create your first Post​"
+    ],
+    "snippet": "On this pageCreate a Blog Post Docusaurus creates a page for each blog post, but also a blog index page, a tag system, an RSS feed... Create your first Post​ Cr",
+    "type": "docs"
+  },
+  {
+    "id": 20,
+    "title": "Create a Document — Create your first Doc​",
+    "url": "/docs/tutorial-basics/create-a-document#create-your-first-doc",
+    "headings": [
+      "Create your first Doc​"
+    ],
+    "snippet": "On this pageCreate a Document Documents are groups of pages connected through: a sidebar previous/next navigation versioning Create your first Doc​ Create a Mar",
+    "type": "docs"
+  },
+  {
+    "id": 21,
+    "title": "Create a Document — Configure the Sidebar​",
+    "url": "/docs/tutorial-basics/create-a-document#configure-the-sidebar",
+    "headings": [
+      "Configure the Sidebar​"
+    ],
+    "snippet": "Configure the Sidebar​ Docusaurus automatically creates a sidebar from the docs folder. Add metadata to customize the sidebar label and position: docs/hello.md-",
+    "type": "docs"
+  },
+  {
+    "id": 22,
+    "title": "Create a Page — Create your first React Page​",
+    "url": "/docs/tutorial-basics/create-a-page#create-your-first-react-page",
+    "headings": [
+      "Create your first React Page​"
+    ],
+    "snippet": "On this pageCreate a Page Add Markdown or React files to src/pages to create a standalone page: src/pages/index.js → localhost:3000/ src/pages/foo.md → localhos",
+    "type": "docs"
+  },
+  {
+    "id": 23,
+    "title": "Create a Page — Create your first Markdown Page​",
+    "url": "/docs/tutorial-basics/create-a-page#create-your-first-markdown-page",
+    "headings": [
+      "Create your first Markdown Page​"
+    ],
+    "snippet": "Create your first Markdown Page​ Create a file at src/pages/my-markdown-page.md: src/pages/my-markdown-page.md# My Markdown pageThis is a Markdown page A new pa",
+    "type": "docs"
+  },
+  {
+    "id": 24,
+    "title": "Deploy your site — Build your site​",
+    "url": "/docs/tutorial-basics/deploy-your-site#build-your-site",
+    "headings": [
+      "Build your site​"
+    ],
+    "snippet": "On this pageDeploy your site Docusaurus is a static-site-generator (also called Jamstack). It builds your site as simple static HTML, JavaScript and CSS files. ",
+    "type": "docs"
+  },
+  {
+    "id": 25,
+    "title": "Deploy your site — Deploy your site​",
+    "url": "/docs/tutorial-basics/deploy-your-site#deploy-your-site",
+    "headings": [
+      "Deploy your site​"
+    ],
+    "snippet": "Deploy your site​ Test your production build locally: npm run serve The build folder is now served at http://localhost:3000/. You can now deploy the build folde",
+    "type": "docs"
+  },
+  {
+    "id": 26,
+    "title": "Markdown Features — Front Matter​",
+    "url": "/docs/tutorial-basics/markdown-features#front-matter",
+    "headings": [
+      "Front Matter​"
+    ],
+    "snippet": "On this pageMarkdown Features Docusaurus supports Markdown and a few additional features. Front Matter​ Markdown documents have metadata at the top called Front",
+    "type": "docs"
+  },
+  {
+    "id": 27,
+    "title": "Markdown Features — Links​",
+    "url": "/docs/tutorial-basics/markdown-features#links",
+    "headings": [
+      "Links​"
+    ],
+    "snippet": "Links​ Regular Markdown links are supported, using url paths or relative file paths. Let's see how to [Create a page](/create-a-page). Let's see how to [Create ",
+    "type": "docs"
+  },
+  {
+    "id": 28,
+    "title": "Markdown Features — Images​",
+    "url": "/docs/tutorial-basics/markdown-features#images",
+    "headings": [
+      "Images​"
+    ],
+    "snippet": "Images​ Regular Markdown images are supported. You can use absolute paths to reference images in the static directory (static/img/docusaurus.png): ![Docusaurus ",
+    "type": "docs"
+  },
+  {
+    "id": 29,
+    "title": "Markdown Features — Code Blocks​",
+    "url": "/docs/tutorial-basics/markdown-features#code-blocks",
+    "headings": [
+      "Code Blocks​"
+    ],
+    "snippet": "Code Blocks​ Markdown code blocks are supported with Syntax highlighting. ```jsx title=\"src/components/HelloDocusaurus.js\"function HelloDocusaurus() { return <h",
+    "type": "docs"
+  },
+  {
+    "id": 30,
+    "title": "Markdown Features — Admonitions​",
+    "url": "/docs/tutorial-basics/markdown-features#admonitions",
+    "headings": [
+      "Admonitions​"
+    ],
+    "snippet": "Admonitions​ Docusaurus has a special syntax to create admonitions and callouts: :::tip[My tip]Use this awesome feature option::::::danger[Take care]This action",
+    "type": "docs"
+  },
+  {
+    "id": 31,
+    "title": "Markdown Features — MDX and React Components​",
+    "url": "/docs/tutorial-basics/markdown-features#mdx-and-react-components",
+    "headings": [
+      "MDX and React Components​"
+    ],
+    "snippet": "MDX and React Components​ MDX can make your documentation more interactive and allows using any React components inside Markdown: export const Highlight = ({chi",
+    "type": "docs"
+  },
+  {
+    "id": 32,
+    "title": "Manage Docs Versions — Create a docs version​",
+    "url": "/docs/tutorial-extras/manage-docs-versions#create-a-docs-version",
+    "headings": [
+      "Create a docs version​"
+    ],
+    "snippet": "On this pageManage Docs Versions Docusaurus can manage multiple versions of your docs. Create a docs version​ Release a version 1.0 of your project: npm run doc",
+    "type": "docs"
+  },
+  {
+    "id": 33,
+    "title": "Manage Docs Versions — Add a Version Dropdown​",
+    "url": "/docs/tutorial-extras/manage-docs-versions#add-a-version-dropdown",
+    "headings": [
+      "Add a Version Dropdown​"
+    ],
+    "snippet": "Add a Version Dropdown​ To navigate seamlessly across versions, add a version dropdown. Modify the docusaurus.config.js file: docusaurus.config.jsexport default",
+    "type": "docs"
+  },
+  {
+    "id": 34,
+    "title": "Manage Docs Versions — Update an existing version​",
+    "url": "/docs/tutorial-extras/manage-docs-versions#update-an-existing-version",
+    "headings": [
+      "Update an existing version​"
+    ],
+    "snippet": "Update an existing version​ It is possible to edit versioned docs in their respective folder: versioned_docs/version-1.0/hello.md updates http://localhost:3000/",
+    "type": "docs"
+  },
+  {
+    "id": 35,
+    "title": "Translate your site — Configure i18n​",
+    "url": "/docs/tutorial-extras/translate-your-site#configure-i18n",
+    "headings": [
+      "Configure i18n​"
+    ],
+    "snippet": "On this pageTranslate your site Let's translate docs/intro.md to French. Configure i18n​ Modify docusaurus.config.js to add support for the fr locale: docusauru",
+    "type": "docs"
+  },
+  {
+    "id": 36,
+    "title": "Translate your site — Translate a doc​",
+    "url": "/docs/tutorial-extras/translate-your-site#translate-a-doc",
+    "headings": [
+      "Translate a doc​"
+    ],
+    "snippet": "Translate a doc​ Copy the docs/intro.md file to the i18n/fr folder: mkdir -p i18n/fr/docusaurus-plugin-content-docs/current/cp docs/intro.md i18n/fr/docusaurus-",
+    "type": "docs"
+  },
+  {
+    "id": 37,
+    "title": "Translate your site — Start your localized site​",
+    "url": "/docs/tutorial-extras/translate-your-site#start-your-localized-site",
+    "headings": [
+      "Start your localized site​"
+    ],
+    "snippet": "Start your localized site​ Start your site on the French locale: npm run start -- --locale fr Your localized site is accessible at http://localhost:3000/fr/ and",
+    "type": "docs"
+  },
+  {
+    "id": 38,
+    "title": "Translate your site — Add a Locale Dropdown​",
+    "url": "/docs/tutorial-extras/translate-your-site#add-a-locale-dropdown",
+    "headings": [
+      "Add a Locale Dropdown​"
+    ],
+    "snippet": "Add a Locale Dropdown​ To navigate seamlessly across languages, add a locale dropdown. Modify the docusaurus.config.js file: docusaurus.config.jsexport default ",
+    "type": "docs"
+  },
+  {
+    "id": 39,
+    "title": "Translate your site — Build your localized site​",
+    "url": "/docs/tutorial-extras/translate-your-site#build-your-localized-site",
+    "headings": [
+      "Build your localized site​"
+    ],
+    "snippet": "Build your localized site​ Build your site for a specific locale: npm run build -- --locale fr Or build your site to include all the locales at once: npm run bu",
+    "type": "docs"
+  },
+  {
+    "id": 40,
+    "title": "Hello from altor-vec | altor-vec",
+    "url": "/",
+    "headings": [],
+    "snippet": "Easy to UseEasy to UseDocusaurus was designed from the ground up to be easily installed and used to get your website up and running quickly.Focus on What Matter",
+    "type": "page"
+  },
+  {
+    "id": 41,
+    "title": "Markdown page example",
+    "url": "/markdown-page",
+    "headings": [],
+    "snippet": "Markdown page example You don't need React to write simple standalone pages.",
+    "type": "page"
+  },
+  {
+    "id": 42,
+    "title": "Search",
+    "url": "/search",
+    "headings": [],
+    "snippet": "SearchPowered by altor-vec",
+    "type": "page"
+  }
+]

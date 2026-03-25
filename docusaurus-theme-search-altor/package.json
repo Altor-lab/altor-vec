@@ -1,0 +1,43 @@
+{
+  "name": "docusaurus-theme-search-altor",
+  "version": "0.1.0",
+  "description": "Semantic search for Docusaurus, powered by altor-vec WASM",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Altor-lab/altor-vec.git",
+    "directory": "docusaurus-theme-search-altor"
+  },
+  "keywords": [
+    "docusaurus",
+    "docusaurus-plugin",
+    "search",
+    "semantic-search",
+    "vector-search",
+    "wasm",
+    "altor-vec"
+  ],
+  "files": ["lib/"],
+  "scripts": {
+    "build": "tsc && cp src/theme/SearchBar/styles.module.css lib/theme/SearchBar/",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@docusaurus/core": "^3.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "altor-vec": "^0.1.0",
+    "cheerio": "^1.0.0",
+    "joi": "^17.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^18.0.0",
+    "@docusaurus/types": "^3.0.0"
+  }
+}

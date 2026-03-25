@@ -1,0 +1,330 @@
+/**
+ * Altor-vec Search Modal Styles
+ * Uses Docusaurus theme variables for light/dark mode compatibility
+ */
+
+.searchButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  color: var(--ifm-color-content);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.searchButton:hover {
+  background: var(--ifm-color-emphasis-100);
+  border-color: var(--ifm-color-emphasis-400);
+}
+
+.searchIcon {
+  width: 1rem;
+  height: 1rem;
+  opacity: 0.6;
+}
+
+.searchButtonText {
+  opacity: 0.7;
+}
+
+.searchButtonKbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.375rem;
+  background: var(--ifm-color-emphasis-200);
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-family: var(--ifm-font-family-monospace);
+  opacity: 0.8;
+}
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Container */
+.modalContainer {
+  width: 90%;
+  max-width: 600px;
+  background: var(--ifm-background-surface-color);
+  border-radius: var(--ifm-global-radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Search Input */
+.searchInputWrapper {
+  position: relative;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 1rem 3rem 1rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--ifm-color-content);
+  font-size: 1rem;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: var(--ifm-color-emphasis-600);
+}
+
+.searchInputIcon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  opacity: 0.5;
+}
+
+.loadingSpinner {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--ifm-color-emphasis-300);
+  border-top-color: var(--ifm-color-primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+/* Results Container */
+.resultsContainer {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.resultsContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.resultsContainer::-webkit-scrollbar-track {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.resultsContainer::-webkit-scrollbar-thumb {
+  background: var(--ifm-color-emphasis-300);
+  border-radius: 4px;
+}
+
+.resultsContainer::-webkit-scrollbar-thumb:hover {
+  background: var(--ifm-color-emphasis-400);
+}
+
+/* Search Result Item */
+.searchResult {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.25rem;
+  border-radius: var(--ifm-global-radius);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.searchResult:hover,
+.searchResult.focused {
+  background: var(--ifm-color-emphasis-100);
+  border-color: var(--ifm-color-primary);
+}
+
+.searchResult.focused {
+  box-shadow: 0 0 0 2px var(--ifm-color-primary-lightest);
+}
+
+.resultTitle {
+  font-weight: 600;
+  color: var(--ifm-color-content);
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.resultPreview {
+  color: var(--ifm-color-content-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.resultScore {
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--ifm-color-emphasis-600);
+  font-family: var(--ifm-font-family-monospace);
+}
+
+/* No Results */
+.noResults {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.noResultsIcon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1rem;
+  opacity: 0.3;
+}
+
+.noResultsText {
+  font-size: 0.9rem;
+}
+
+/* Error Message */
+.errorMessage {
+  padding: 1rem;
+  margin: 0.5rem;
+  background: var(--ifm-color-danger-contrast-background);
+  border: 1px solid var(--ifm-color-danger);
+  border-radius: var(--ifm-global-radius);
+  color: var(--ifm-color-danger);
+  font-size: 0.875rem;
+}
+
+/* Footer */
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-50);
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.keyboardHints {
+  display: flex;
+  gap: 1rem;
+}
+
+.keyboardHint {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.keyboardHintKey {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.375rem;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 0.25rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.7rem;
+  min-width: 1.5rem;
+  justify-content: center;
+}
+
+.poweredBy {
+  opacity: 0.7;
+}
+
+.poweredByLink {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.poweredByLink:hover {
+  text-decoration: underline;
+}
+
+/* Timing Display */
+.timingDisplay {
+  padding: 0.5rem 1rem;
+  background: var(--ifm-color-emphasis-100);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  font-size: 0.7rem;
+  font-family: var(--ifm-font-family-monospace);
+  color: var(--ifm-color-emphasis-700);
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modalOverlay {
+    padding-top: 5vh;
+  }
+
+  .modalContainer {
+    width: 95%;
+  }
+
+  .keyboardHints {
+    display: none;
+  }
+
+  .searchButtonKbd {
+    display: none;
+  }
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .modalOverlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+[data-theme='dark'] .searchResult:hover,
+[data-theme='dark'] .searchResult.focused {
+  background: var(--ifm-color-emphasis-200);
+}

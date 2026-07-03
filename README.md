@@ -1,8 +1,6 @@
 <p align="center">
   <h1 align="center">altor-vec</h1>
-  <p align="center">
-    <b>Client-side vector search. Rust + WASM. 54KB. Sub-millisecond.</b>
-  </p>
+  <p align="center"><b>Client-side vector search. Rust + WASM. 54KB. Sub-millisecond.</b></p>
   <p align="center">
     <a href="https://www.npmjs.com/package/altor-vec"><img src="https://img.shields.io/npm/v/altor-vec?color=blue&label=npm" alt="npm version"></a>
     <a href="https://www.npmjs.com/package/altor-vec"><img src="https://img.shields.io/npm/dm/altor-vec?color=green" alt="npm downloads"></a>
@@ -12,7 +10,7 @@
     <img src="https://img.shields.io/badge/WASM-54KB_gzipped-orange" alt="WASM size">
   </p>
   <p align="center">
-    <a href="https://altorlab.dev"><img src="https://img.shields.io/badge/%F0%9F%9A%80_Try_Live_Demo-altorlab.dev-blueviolet?style=for-the-badge" alt="Try Live Demo"></a>
+    <a href="https://altorlab.dev"><img src="https://img.shields.io/badge/%F0%9F%9A%80_Docs_%26_Demo-altorlab.dev-blueviolet?style=for-the-badge" alt="Docs & Demo"></a>
   </p>
 </p>
 
@@ -22,21 +20,39 @@
 
 altor-vec is an HNSW vector similarity search engine written in Rust that compiles to 54KB of WebAssembly. Search 10,000 vectors in under 1ms — entirely client-side.
 
+## Is this for you?
+
+- **Docs site** — want semantic search without Algolia DocSearch fees?
+- **Using Fuse.js** — need it to understand *meaning*, not just character similarity? ("cancel subscription" should find "end your plan")
+- **React / Next.js app** — want vector search without a server or API keys?
+- **Privacy requirement** — queries must never leave the device?
+
 ## Why altor-vec?
 
-> You're paying Algolia **$0.50 per 1,000 searches** and sending your users' queries to a third party.
->
-> With altor-vec, search runs in the browser. **$0 per query. Forever.**
+| | altor-vec | Algolia | Fuse.js | Orama | Voy |
+|---|---|---|---|---|---|
+| **Runs client-side** | ✅ | ❌ server | ✅ | ✅ | ✅ |
+| **Semantic (meaning-based)** | ✅ HNSW | ✅ paid add-on | ❌ fuzzy text | partial | ❌ |
+| **Bundle size** | **54KB** gz | N/A | ~5KB | ~2KB* | 75KB gz |
+| **p95 latency** | **0.6ms** | ~50ms (network) | ~2ms | ~5ms | ~2ms |
+| **Per-query cost** | **$0** | $0.50/1K | $0 | $0 | $0 |
+| **"cancel" → "end subscription"** | ✅ | ✅ | ❌ | partial | ❌ |
 
-| | altor-vec | Algolia | Voy | Orama |
-|---|-----------|---------|-----|-------|
-| **Runs client-side** | Yes | No | Yes | Yes |
-| **Binary size** | **54KB** gz | N/A | 75KB gz | ~2KB* |
-| **Algorithm** | **HNSW** | BM25 | k-d tree | Brute-force |
-| **p95 latency** | **0.6ms** | ~50ms (network) | ~2ms | ~5ms |
-| **Per-query cost** | **$0** | $0.50/1K | $0 | Free tier |
+<sub>*Orama's 2KB is keyword-only; vector search adds significant size.</sub>
 
-<sub>*Orama's 2KB is keyword search only; vector search adds significant size.</sub>
+### vs Fuse.js
+
+Fuse.js is great for fuzzy *string* matching. altor-vec does *semantic* matching — meaning, not characters.
+
+| | altor-vec | Fuse.js |
+|---|---|---|
+| Algorithm | HNSW (vector similarity) | Bitap / Levenshtein |
+| "cancel plan" → "end subscription" | ✅ | ❌ |
+| Typo tolerance | Via semantic neighbors | ✅ native |
+| Bundle size | 54KB WASM | ~5KB |
+| Needs embeddings | Yes (build-time) | No |
+
+→ Full comparison: [altorlab.dev/vs/fuse-js](https://altorlab.dev/vs/fuse-js)
 
 ## Get started in 30 seconds
 
@@ -49,16 +65,139 @@ import init, { WasmSearchEngine } from 'altor-vec';
 
 await init();
 
-// Load a pre-built index
-const resp = await fetch('/index.bin');
-const engine = new WasmSearchEngine(new Uint8Array(await resp.arrayBuffer()));
+const resp = await fetch('/search-index.bin');
+const engine = WasmSearchEngine.from_bytes(new Uint8Array(await resp.arrayBuffer()));
 
-// Search — returns in <1ms
+// Search returns in <1ms
 const results = JSON.parse(engine.search(queryEmbedding, 5));
 // => [[nodeId, distance], ...]
 ```
 
-That's it. No server to deploy. No API key to manage. No billing to worry about.
+→ Full guide: [altorlab.dev/getting-started](https://altorlab.dev/getting-started)
+
+## Framework quickstarts
+
+### React
+
+```jsx
+import { useState, useEffect, useRef } from 'react';
+import init, { WasmSearchEngine } from 'altor-vec';
+
+export function SearchWidget({ docs }) {
+  const engineRef = useRef(null);
+  const [results, setResults] = useState([]);
+
+  useEffect(() => {
+    init().then(async () => {
+      const res = await fetch('/search-index.bin');
+      engineRef.current = WasmSearchEngine.from_bytes(
+        new Uint8Array(await res.arrayBuffer())
+      );
+    });
+  }, []);
+
+  async function handleSearch(queryEmbedding) {
+    const hits = JSON.parse(engineRef.current.search(queryEmbedding, 5));
+    setResults(hits.map(([id]) => docs[id]));
+  }
+
+  return <input onChange={e => /* embed then handleSearch() */ null} />;
+}
+```
+
+→ [altorlab.dev/guides/react/document-search](https://altorlab.dev/guides/react/document-search)
+
+### Next.js (App Router)
+
+```jsx
+'use client';
+import { useRef, useEffect } from 'react';
+import init, { WasmSearchEngine } from 'altor-vec';
+
+export default function Search() {
+  const engineRef = useRef(null);
+  useEffect(() => {
+    init().then(async () => {
+      const res = await fetch('/search-index.bin');
+      engineRef.current = WasmSearchEngine.from_bytes(
+        new Uint8Array(await res.arrayBuffer())
+      );
+    });
+  }, []);
+  // ...
+}
+```
+
+→ [altorlab.dev/guides/nextjs/document-search](https://altorlab.dev/guides/nextjs/document-search)
+
+### Vue 3
+
+```vue
+<script setup>
+import { onMounted } from 'vue';
+import init, { WasmSearchEngine } from 'altor-vec';
+let engine;
+onMounted(async () => {
+  await init();
+  const res = await fetch('/search-index.bin');
+  engine = WasmSearchEngine.from_bytes(new Uint8Array(await res.arrayBuffer()));
+});
+</script>
+```
+
+→ [altorlab.dev/guides/vue/document-search](https://altorlab.dev/guides/vue/document-search)
+
+## Building the index (once, at deploy time)
+
+```js
+// scripts/build-search-index.mjs
+import { pipeline } from '@huggingface/transformers';
+import { WasmSearchEngine } from 'altor-vec/node';
+import fs from 'fs';
+
+const embed = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+const docs = [
+  { id: 0, text: 'How to cancel your subscription' },
+  { id: 1, text: 'Account settings and profile preferences' },
+  { id: 2, text: 'Getting started with the API' },
+];
+
+const vectors = [];
+for (const doc of docs) {
+  const out = await embed(doc.text, { pooling: 'mean', normalize: true });
+  vectors.push(...Array.from(out.data));
+}
+
+const engine = WasmSearchEngine.from_vectors(
+  new Float32Array(vectors), 384, 16, 200, 50
+);
+fs.writeFileSync('./public/search-index.bin', Buffer.from(engine.serialize()));
+```
+
+Add to `package.json`:
+```json
+{ "scripts": { "prebuild": "node scripts/build-search-index.mjs", "build": "vite build" } }
+```
+
+## Web Worker (recommended for production)
+
+```js
+// search-worker.js
+import init, { WasmSearchEngine } from 'altor-vec';
+let engine;
+self.onmessage = async (e) => {
+  if (e.data.type === 'init') {
+    await init();
+    const resp = await fetch(e.data.indexUrl);
+    engine = WasmSearchEngine.from_bytes(new Uint8Array(await resp.arrayBuffer()));
+    postMessage({ type: 'ready' });
+  }
+  if (e.data.type === 'search') {
+    const results = JSON.parse(engine.search(new Float32Array(e.data.query), e.data.topK));
+    postMessage({ type: 'results', results });
+  }
+};
+```
 
 ## Benchmarks
 
@@ -68,7 +207,7 @@ That's it. No server to deploy. No API key to manage. No billing to worry about.
 **Latency** (10K vectors, 384d)
 
 | Environment | p95 |
-|-------------|-----|
+|---|---|
 | Chrome | **0.60ms** |
 | Node.js | **0.50ms** |
 | Native Rust | **0.26ms** |
@@ -78,7 +217,7 @@ That's it. No server to deploy. No API key to manage. No billing to worry about.
 **Size**
 
 | Asset | Size |
-|-------|------|
+|---|---|
 | `.wasm` gzipped | **54KB** |
 | `.wasm` raw | 117KB |
 | Index (10K/384d) | 17MB |
@@ -86,106 +225,98 @@ That's it. No server to deploy. No API key to manage. No billing to worry about.
 </td></tr>
 </table>
 
-## Use with a Web Worker (recommended for production)
-
-Keep the main thread free — especially important on mobile:
-
-```js
-// worker.js
-import init, { WasmSearchEngine } from 'altor-vec';
-
-let engine;
-self.onmessage = async (e) => {
-  if (e.data.type === 'init') {
-    await init();
-    const resp = await fetch(e.data.indexUrl);
-    engine = new WasmSearchEngine(new Uint8Array(await resp.arrayBuffer()));
-    postMessage({ type: 'ready', count: engine.len() });
-  }
-  if (e.data.type === 'search') {
-    const results = JSON.parse(engine.search(new Float32Array(e.data.query), e.data.topK));
-    postMessage({ type: 'results', results });
-  }
-};
-```
-
-```js
-// main.js — UI stays buttery smooth
-const worker = new Worker('worker.js', { type: 'module' });
-worker.postMessage({ type: 'init', indexUrl: '/index.bin' });
-```
+→ [altorlab.dev/benchmarks](https://altorlab.dev/benchmarks/)
 
 ## API
 
 | Method | Description |
-|--------|-------------|
-| `new WasmSearchEngine(bytes)` | Load a serialized index |
-| `.from_vectors(flat, dims, m, ef_construction, ef_search)` | Build index from vectors |
-| `.search(query, topK)` | Search → JSON `[[id, dist], ...]` |
+|---|---|
+| `WasmSearchEngine.from_bytes(bytes)` | Load serialized index |
+| `WasmSearchEngine.from_vectors(flat, dims, m, ef_c, ef_s)` | Build from flat float array |
+| `.search(query, topK)` | Returns JSON `[[id, dist], ...]` |
 | `.add_vectors(flat, dims)` | Add vectors to existing index |
-| `.to_bytes()` | Serialize index |
+| `.serialize()` | Serialize to `Uint8Array` |
 | `.len()` | Vector count |
 | `.free()` | Free WASM memory |
 
-**Parameters:**
+**HNSW params:** `m=16` (connections/node), `ef_construction=200` (build quality), `ef_search=50` (query recall)
 
-| Param | Default | What it does |
-|-------|---------|-------------|
-| `m` | 16 | Connections per node. Higher = better recall, more RAM |
-| `ef_construction` | 200 | Build-time beam width. Higher = better index, slower build |
-| `ef_search` | 50 | Search-time beam width. Higher = better recall, slower search |
+→ Full reference: [altorlab.dev/api](https://altorlab.dev/api)
 
-## Works with any embedding model
+## Embedding models
 
-| Model | Dims | Where it runs |
-|-------|------|---------------|
-| all-MiniLM-L6-v2 | 384 | Browser ([Transformers.js](https://huggingface.co/docs/transformers.js)) |
-| text-embedding-3-small | 1536 | OpenAI API |
-| embed-english-v3 | 1024 | Cohere API |
+| Model | Dims | Runs in browser |
+|---|---|---|
+| all-MiniLM-L6-v2 | 384 | ✅ via [Transformers.js](https://huggingface.co/docs/transformers.js) |
+| nomic-embed-text | 768 | ✅ via Transformers.js |
+| text-embedding-3-small | 1536 | Build-time only (OpenAI API) |
+| embed-english-v3 | 1024 | Build-time only (Cohere API) |
 
-**Fully client-side** with Transformers.js — no API calls at all:
+## Common use cases
 
-```js
-import { pipeline } from '@huggingface/transformers';
+- **Documentation search** — [altorlab.dev/use-cases/document-search](https://altorlab.dev/use-cases/document-search)
+- **Browser RAG** (retrieval without a server) — [altorlab.dev/blog/browser-rag-tutorial](https://altorlab.dev/blog/browser-rag-tutorial)
+- **Product search** — [altorlab.dev/use-cases/product-search](https://altorlab.dev/use-cases/product-search)
+- **Semantic autocomplete** — [altorlab.dev/use-cases/autocomplete](https://altorlab.dev/use-cases/autocomplete)
+- **Offline-first search** — [altorlab.dev/use-cases/offline-search](https://altorlab.dev/use-cases/offline-search)
+- **Chat memory** — [altorlab.dev/use-cases/chat-memory](https://altorlab.dev/use-cases/chat-memory)
 
-const embed = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-const output = await embed('your query', { pooling: 'mean', normalize: true });
-const results = JSON.parse(engine.search(new Float32Array(output.data), 5));
-```
+## Migration guides
+
+- Algolia → [altorlab.dev/migrate-from/algolia](https://altorlab.dev/migrate-from/algolia)
+- Pinecone → [altorlab.dev/migrate-from/pinecone](https://altorlab.dev/migrate-from/pinecone)
+- Fuse.js → [altorlab.dev/vs/fuse-js](https://altorlab.dev/vs/fuse-js)
+- Pagefind → [altorlab.dev/migrate-from/pagefind](https://altorlab.dev/migrate-from/pagefind)
+- ChromaDB → [altorlab.dev/migrate-from/chromadb](https://altorlab.dev/migrate-from/chromadb)
+- FAISS → [altorlab.dev/migrate-from/faiss](https://altorlab.dev/migrate-from/faiss)
+- Meilisearch → [altorlab.dev/migrate-from/meilisearch](https://altorlab.dev/migrate-from/meilisearch)
+- Typesense → [altorlab.dev/migrate-from/typesense](https://altorlab.dev/migrate-from/typesense)
 
 ## How it works
 
-altor-vec uses **HNSW (Hierarchical Navigable Small World)** — the same algorithm behind Pinecone, Qdrant, and pgvector. HNSW builds a multi-layer graph where each node is a vector and edges connect nearby neighbors. Upper layers act as express lanes for coarse navigation; the bottom layer contains all vectors for fine-grained search. A query enters at the top and greedily descends to find the nearest neighbors in O(log n) time.
-
-All vectors are L2-normalized at insert time, so dot product distance equals cosine similarity — no extra computation at search time.
+altor-vec uses **HNSW (Hierarchical Navigable Small World)** — the same algorithm behind Pinecone, Qdrant, and pgvector. Builds a multi-layer graph; upper layers are express lanes for coarse navigation, bottom layer has all vectors for fine-grained search. O(log n) queries. All vectors are L2-normalized at insert so dot product = cosine similarity.
 
 ## Architecture
 
 ```
 src/
-├── lib.rs              # Public API re-exports
-├── distance.rs         # Dot product, normalization (auto-vectorizes with SIMD)
+├── lib.rs              # Public API
+├── distance.rs         # Dot product + normalization (SIMD-vectorized)
 └── hnsw/
-    ├── mod.rs           # HnswIndex: API + serialization
-    ├── graph.rs         # Layered graph structure
-    ├── search.rs        # Greedy beam search
-    └── construction.rs  # HNSW insert + random layer selection
-
+    ├── mod.rs          # HnswIndex: API + serialization
+    ├── graph.rs        # Layered graph structure
+    ├── search.rs       # Greedy beam search
+    └── construction.rs # Insert + random layer selection
 wasm/
 └── src/lib.rs          # WasmSearchEngine (wasm-bindgen wrapper)
 ```
 
+## Full documentation
+
+| | |
+|---|---|
+| Getting started | [altorlab.dev/getting-started](https://altorlab.dev/getting-started) |
+| API reference | [altorlab.dev/api](https://altorlab.dev/api) |
+| React guide | [altorlab.dev/guides/react/document-search](https://altorlab.dev/guides/react/document-search) |
+| Next.js guide | [altorlab.dev/guides/nextjs/document-search](https://altorlab.dev/guides/nextjs/document-search) |
+| Vue guide | [altorlab.dev/guides/vue/document-search](https://altorlab.dev/guides/vue/document-search) |
+| Node.js guide | [altorlab.dev/guides/node/document-search](https://altorlab.dev/guides/node/document-search) |
+| All comparisons | [altorlab.dev/vs](https://altorlab.dev/vs/) |
+| Migration guides | [altorlab.dev/migrate-from](https://altorlab.dev/migrate-from/) |
+| Benchmarks | [altorlab.dev/benchmarks](https://altorlab.dev/benchmarks/) |
+| Live examples | [altorlab.dev/examples/document-search](https://altorlab.dev/examples/document-search) |
+
 ## Build from source
 
 ```bash
-cargo test                # run tests
-cargo bench               # run benchmarks
-cd wasm && wasm-pack build --target web --release  # build WASM
+cargo test
+cargo bench
+cd wasm && wasm-pack build --target web --release
 ```
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions, code style, and PR process.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions, code style, and PR process.
 
 ## License
 
@@ -194,18 +325,9 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for build instr
 ---
 
 <p align="center">
-  <b>Built by <a href="https://github.com/altor-lab">altor-lab</a></b>
-  <br>
-  <sub>
-    <a href="https://www.npmjs.com/package/altor-vec">npm</a> ·
-    <a href="https://github.com/altor-lab/altor-vec/issues">Issues</a> ·
-    <a href="mailto:anshul@altorlab.dev">Contact</a>
-  </sub>
-</p>
-
-<p align="center">
-  <br>
-  <b>Need managed semantic search? Embedding pipeline, index building, CDN delivery?</b>
-  <br>
-  <a href="mailto:anshul@altorlab.dev">anshul@altorlab.dev</a>
+  <b>Built by <a href="https://github.com/altor-lab">altor-lab</a></b> ·
+  <a href="https://altorlab.dev">altorlab.dev</a> ·
+  <a href="https://www.npmjs.com/package/altor-vec">npm</a> ·
+  <a href="https://github.com/altor-lab/altor-vec/issues">issues</a> ·
+  <a href="mailto:anshul@altorlab.com">anshul@altorlab.com</a>
 </p>
